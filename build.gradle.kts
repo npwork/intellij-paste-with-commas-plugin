@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.nick"
-version = "1.0.1"
+version = "1.0.2"
 
 repositories {
     mavenCentral()
@@ -37,6 +37,13 @@ intellijPlatform {
         }
 
         changeNotes = """
+            <h3>1.0.2 - Bug Fix Release</h3>
+            <ul>
+                <li><b>Fixed Trailing Newlines</b> - Correctly handles input with trailing empty lines (e.g., "a\nb\n\n" → "a,\nb")</li>
+                <li><b>Enhanced Test Coverage</b> - Added comprehensive tests for trailing newline scenarios</li>
+                <li><b>Improved Reliability</b> - All paste variants now properly trim trailing empty content</li>
+            </ul>
+            
             <h3>1.0.1 - Extended Compatibility</h3>
             <ul>
                 <li><b>Broader Compatibility</b> - Now supports IntelliJ IDEA 2024.1+ through 2025.1+ and newer versions</li>

@@ -142,4 +142,36 @@ class PasteWithCommasActionTest {
         val result = action.addCommasToLines(input)
         assertEquals(expected, result)
     }
+
+    @Test
+    fun `test trailing empty lines are removed - text content`() {
+        val input = "a\nb\n\n"
+        val expected = "'a',\n'b'"
+        val result = action.addCommasToLines(input)
+        assertEquals(expected, result)
+    }
+
+    @Test
+    fun `test trailing empty lines are removed - numeric content`() {
+        val input = "1\n2\n\n\n"
+        val expected = "1,\n2"
+        val result = action.addCommasToLines(input)
+        assertEquals(expected, result)
+    }
+
+    @Test
+    fun `test multiple trailing newlines removed`() {
+        val input = "apple\nbanana\n\n\n\n"
+        val expected = "'apple',\n'banana'"
+        val result = action.addCommasToLines(input)
+        assertEquals(expected, result)
+    }
+
+    @Test
+    fun `test trailing empty line with spaces removed`() {
+        val input = "hello\nworld\n   \n"
+        val expected = "'hello',\n'world',\n'   '"
+        val result = action.addCommasToLines(input)
+        assertEquals(expected, result)
+    }
 }

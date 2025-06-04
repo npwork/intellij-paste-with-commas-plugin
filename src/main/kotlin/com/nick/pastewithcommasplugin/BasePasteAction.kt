@@ -68,14 +68,17 @@ abstract class BasePasteAction : AnAction() {
         
         val lines = input.split('\n')
         
-        // If all lines are empty, don't add commas
-        if (lines.all { it.isEmpty() }) {
+        // Remove trailing empty lines
+        val trimmedLines = lines.dropLastWhile { it.isEmpty() }
+        
+        // If all lines are empty after trimming, don't add commas
+        if (trimmedLines.isEmpty() || trimmedLines.all { it.isEmpty() }) {
             return input
         }
         
-        return lines.mapIndexed { index, line ->
-            val processedLine = lineProcessor(line, index == lines.lastIndex)
-            if (index == lines.lastIndex) {
+        return trimmedLines.mapIndexed { index, line ->
+            val processedLine = lineProcessor(line, index == trimmedLines.lastIndex)
+            if (index == trimmedLines.lastIndex) {
                 processedLine
             } else {
                 "$processedLine,"
