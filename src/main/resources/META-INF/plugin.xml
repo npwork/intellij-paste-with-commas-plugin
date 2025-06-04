@@ -1,0 +1,90 @@
+<!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
+<idea-plugin>
+    <!-- Unique identifier of the plugin. It should be FQN. It cannot be changed between the plugin versions. -->
+    <id>com.nick.paste-with-commas-plugin</id>
+
+    <!-- Public plugin name should be written in Title Case.
+         Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-name -->
+    <name>Paste with Commas</name>
+
+    <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
+    <vendor email="your.email@example.com" url="https://github.com/YOUR_USERNAME">Nick</vendor>
+
+    <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
+         Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-description -->
+    <description><![CDATA[
+        <h2>Intelligent Paste with Commas</h2>
+        <p>
+            Enhance your productivity with intelligent paste functionality that automatically formats clipboard content with commas and quotes.
+        </p>
+        
+        <h3>Features</h3>
+        <ul>
+            <li><strong>Smart Detection:</strong> Automatically detects numbers vs text content</li>
+            <li><strong>Multiple Formats:</strong> Simple commas, single quotes, or double quotes</li>
+            <li><strong>Organized Menu:</strong> Main intelligent action with submenu for specific options</li>
+            <li><strong>Custom Icons:</strong> Visual distinction for each paste type</li>
+        </ul>
+        
+        <h3>Usage</h3>
+        <p>Right-click in any editor and choose from:</p>
+        <ul>
+            <li><strong>Paste with Commas</strong> - Intelligent formatting (numbers: <code>1,\n2,\n3</code> | text: <code>'a',\n'b',\n'c'</code>)</li>
+            <li><strong>Paste with Commas (additional)</strong> submenu with specific formatting options</li>
+        </ul>
+        
+        <h3>Examples</h3>
+        <table>
+            <tr><th>Input</th><th>Intelligent Output</th><th>Simple Output</th></tr>
+            <tr><td>1\n2\n3</td><td>1,\n2,\n3</td><td>1,\n2,\n3</td></tr>
+            <tr><td>apple\nbanana</td><td>'apple',\n'banana'</td><td>apple,\nbanana</td></tr>
+        </table>
+        
+        <p>Perfect for SQL queries, array literals, CSV data, and any comma-separated lists!</p>
+    ]]></description>
+
+    <!-- Product and plugin compatibility requirements.
+         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
+    <depends>com.intellij.modules.platform</depends>
+    
+    <!-- Compatibility with IntelliJ versions - until-build will be set by Gradle -->
+    <idea-version since-build="241"/>
+
+    <!-- Extension points defined by the plugin.
+         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
+    <extensions defaultExtensionNs="com.intellij">
+
+    </extensions>
+
+    <actions>
+        <action id="PasteWithCommas"
+                class="com.nick.pastewithcommasplugin.PasteWithCommasAction"
+                text="Paste with Commas"
+                description="Intelligent paste: uses commas for numbers, single quotes + commas for text"
+                icon="/icons/pasteWithCommas.svg">
+            <add-to-group group-id="EditorPopupMenu" anchor="after" relative-to-action="$Paste"/>
+        </action>
+        
+        <group id="PasteWithCommasAdditional" text="Paste with Commas (additional)" popup="true">
+            <add-to-group group-id="EditorPopupMenu" anchor="after" relative-to-action="PasteWithCommas"/>
+            
+            <action id="PasteWithCommasSimple"
+                    class="com.nick.pastewithcommasplugin.PasteWithCommasSimpleAction"
+                    text="Paste with Commas (simple)"
+                    description="Paste clipboard content with commas added to each line except the last (no quotes)"
+                    icon="/icons/pasteWithCommas.svg"/>
+            
+            <action id="PasteWithCommasAndQuotes"
+                    class="com.nick.pastewithcommasplugin.PasteWithCommasAndQuotesAction"
+                    text="Paste with Commas + '"
+                    description="Paste clipboard content with single quotes around each line and commas added except for the last line"
+                    icon="/icons/pasteWithCommasAndQuotes.svg"/>
+            
+            <action id="PasteWithCommasAndDoubleQuotes"
+                    class="com.nick.pastewithcommasplugin.PasteWithCommasAndDoubleQuotesAction"
+                    text="Paste with Commas + &quot;"
+                    description="Paste clipboard content with double quotes around each line and commas added except for the last line"
+                    icon="/icons/pasteWithCommasAndDoubleQuotes.svg"/>
+        </group>
+    </actions>
+</idea-plugin>

@@ -1,0 +1,1 @@
+rootProject.name = "paste-with-commas-plugin"

@@ -1,0 +1,134 @@
+name: Platform Compatibility Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      intellij_version:
+        description: 'IntelliJ version to test'
+        required: false
+        default: '2024.2.5'
+
+jobs:
+  compatibility-test:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        intellij-version:
+          - '2024.2.5'   # Build 242
+          - '2024.3'     # Build 243 (when available)
+        include:
+          - intellij-version: '2024.2.5'
+            build-range: '242.*'
+          - intellij-version: '2024.3'
+            build-range: '243.*'
+    
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+      
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        
+    - name: Cache Gradle packages
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-compat-${{ matrix.intellij-version }}-${{ hashFiles('**/*.gradle*') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-compat-
+          
+    - name: Make gradlew executable
+      run: chmod +x gradlew
+      
+    - name: Test with IntelliJ ${{ matrix.intellij-version }}
+      run: |
+        echo "Testing compatibility with IntelliJ IDEA ${{ matrix.intellij-version }}"
+        
+        # Backup original build.gradle.kts
+        cp build.gradle.kts build.gradle.kts.backup
+        
+        # Modify build.gradle.kts to use specific IntelliJ version
+        sed -i 's/create("IC", "[^"]*")/create("IC", "${{ matrix.intellij-version }}")/' build.gradle.kts
+        
+        echo "Modified build.gradle.kts to use IntelliJ ${{ matrix.intellij-version }}"
+        
+        # Run platform compatibility tests
+        ./gradlew test --tests "*PlatformCompatibilityTest*" --info
+        
+    - name: Run All Tests with IntelliJ ${{ matrix.intellij-version }}
+      run: ./gradlew test
+      
+    - name: Build Plugin with IntelliJ ${{ matrix.intellij-version }}
+      run: ./gradlew buildPlugin
+      
+    - name: Upload Test Results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: test-results-intellij-${{ matrix.intellij-version }}
+        path: |
+          build/reports/tests/
+          build/test-results/
+          
+    - name: Upload Plugin Artifacts
+      uses: actions/upload-artifact@v4
+      if: success()
+      with:
+        name: plugin-intellij-${{ matrix.intellij-version }}
+        path: build/distributions/
+
+  manual-version-test:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+    
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+      
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        
+    - name: Cache Gradle packages
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-manual-${{ github.event.inputs.intellij_version }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-manual-
+          
+    - name: Make gradlew executable
+      run: chmod +x gradlew
+      
+    - name: Test with Custom IntelliJ Version
+      run: |
+        echo "Testing with custom IntelliJ version: ${{ github.event.inputs.intellij_version }}"
+        
+        # Modify build.gradle.kts to use custom version
+        sed -i 's/create("IC", "[^"]*")/create("IC", "${{ github.event.inputs.intellij_version }}")/' build.gradle.kts
+        
+        # Run tests
+        ./gradlew test
+        ./gradlew buildPlugin
+        
+    - name: Upload Custom Version Results
+      uses: actions/upload-artifact@v4
+      with:
+        name: custom-version-${{ github.event.inputs.intellij_version }}
+        path: |
+          build/reports/tests/
+          build/distributions/
